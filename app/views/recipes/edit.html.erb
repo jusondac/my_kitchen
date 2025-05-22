@@ -1,10 +1,25 @@
-<% content_for :title, "Editing recipe" %>
-
-<div class="md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">Editing recipe</h1>
-
+<% content_for :title, "Edit Recipe - #{@recipe.name}" %>
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between border-b border-gray-700 pb-6 mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-white">Edit Recipe</h1>
+      <p class="text-gray-400 mt-2"><%= @recipe.name %></p>
+    </div>
+    <div class="flex space-x-3">
+      <%= link_to @recipe, class: "inline-flex items-center px-4 py-2 bg-gray-800 border border-gray-700 rounded-md font-medium text-gray-300 hover:bg-gray-700 transition-colors" do %>
+        <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        </svg>
+        View Recipe
+      <% end %>
+      <%= link_to recipes_path, class: "inline-flex items-center px-4 py-2 bg-gray-800 border border-gray-700 rounded-md font-medium text-gray-300 hover:bg-gray-700 transition-colors" do %>
+        <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to recipes
+      <% end %>
+    </div>
+  </div>
   <%= render "form", recipe: @recipe %>
-
-  <%= link_to "Show this recipe", @recipe, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to recipes", recipes_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
 </div>
