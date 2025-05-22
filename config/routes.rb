@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :ingredients
+  resources :recipes
   get "home/index"
   root "home#index"
   get "registrations/new"
