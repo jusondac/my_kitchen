@@ -33,11 +33,71 @@
       </div>
       <div class="space-y-1">
         <label for="recipe_instructions" class="block text-sm font-medium text-gray-300">Cooking Instructions</label>
-        <p class="text-xs text-gray-400 mb-1">Add each step on a new line. No need to number them.</p>
-        <%= form.text_area :instructions, id: "recipe_instructions", placeholder: "Step-by-step instructions", rows: 8, class: ["block w-full rounded-md shadow-sm bg-gray-800 border px-4 py-3 focus:ring-2 transition-colors", {"border-gray-700 focus:border-blue-500 focus:ring-blue-500": recipe.errors[:instructions].none?, "border-red-500 focus:border-red-500 focus:ring-red-500": recipe.errors[:instructions].any?}] %>
-        <% if recipe.errors[:instructions].any? %>
-          <p class="mt-1 text-sm text-red-400"><%= recipe.errors[:instructions].first %></p>
-        <% end %>
+        <div class="bg-gray-800/50 rounded-lg p-5 border border-gray-700">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-md font-semibold text-white">Steps</h3>
+            <%= link_to "#", id: "add-instruction", class: "inline-flex items-center text-sm px-3 py-1.5 bg-blue-600/50 text-blue-200 rounded-md hover:bg-blue-600/80 transition-colors" do %>
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
+              </svg>
+              Add Step
+            <% end %>
+          </div>
+          <div data-recipe-form-target="instructions" class="space-y-3 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+            <%= form.fields_for :instructions do |instruction_form| %>
+              <div class="bg-gray-900/60 rounded-lg p-4 border border-gray-700 transition-colors hover:border-gray-600 instruction-container">
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3">
+                    <div class="bg-blue-900/60 text-blue-200 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 step-number">
+                      <%= instruction_form.object.position || form.object.instructions.size %>
+                    </div>
+                    <div class="w-full">
+                      <%= instruction_form.hidden_field :position, class: "position-field" %>
+                      <%= instruction_form.text_area :step, rows: 2, placeholder: "Describe this step...", class: "block w-full rounded-md shadow-sm bg-gray-800 border border-gray-700 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+                    </div>
+                  </div>
+                  <div class="flex justify-end gap-2">
+                    <button type="button" class="move-instruction-up inline-flex items-center px-2 py-1 bg-gray-700/80 text-gray-300 text-xs rounded hover:bg-gray-600 transition-colors">
+                      <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                      </svg>
+                      Move Up
+                    </button>
+                    <button type="button" class="move-instruction-down inline-flex items-center px-2 py-1 bg-gray-700/80 text-gray-300 text-xs rounded hover:bg-gray-600 transition-colors">
+                      <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                      </svg>
+                      Move Down
+                    </button>
+                    <% if instruction_form.object.persisted? %>
+                      <div class="hidden">
+                        <%= instruction_form.check_box :_destroy, class: "destroy-instruction-checkbox" %>
+                      </div>
+                      <button type="button" class="toggle-instruction-destroy inline-flex items-center px-2 py-1 bg-red-900/40 text-red-300 text-xs rounded hover:bg-red-800/60 transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        Remove
+                      </button>
+                    <% else %>
+                      <button type="button" class="remove-instruction inline-flex items-center px-2 py-1 bg-red-900/40 text-red-300 text-xs rounded hover:bg-red-800/60 transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        Remove
+                      </button>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <% if form.object.instructions.reject(&:marked_for_destruction?).blank? %>
+            <p class="text-gray-400 text-center py-6 border border-dashed border-gray-700 rounded-lg mt-4 no-instructions-message">
+              No steps added yet. Click "Add Step" to start.
+            </p>
+          <% end %>
+        </div>
       </div>
       <div class="space-y-1">
         <label for="recipe_cooking_time" class="block text-sm font-medium text-gray-300">Cooking Time (minutes)</label>
@@ -77,13 +137,11 @@
                       { prompt: "Select an ingredient" }, 
                       { class: "block w-full rounded-md shadow-sm bg-gray-800 border border-gray-700 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
                 </div>
-                
                 <div>
                   <label class="block text-xs font-medium text-gray-400 mb-1">Quantity</label>
                   <%= ingredient_form.text_field :quantity, placeholder: "e.g., 2 cups, 500g, 3 tbsp", 
                       class: "block w-full rounded-md shadow-sm bg-gray-800 border border-gray-700 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
                 </div>
-                
                 <div class="flex justify-end">
                   <% if ingredient_form.object.new_record? %>
                     <button type="button" class="remove-ingredient inline-flex items-center px-2 py-1 bg-red-900/40 text-red-300 text-sm rounded hover:bg-red-800/60 transition-colors">

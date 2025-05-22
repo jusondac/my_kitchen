@@ -4,17 +4,20 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(55, 65, 81, 0.3); /* gray-700/30 */
+  background: rgba(55, 65, 81, 0.3);
+  /* gray-700/30 */
   border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.6); /* gray-600/60 */
+  background: rgba(75, 85, 99, 0.6);
+  /* gray-600/60 */
   border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(75, 85, 99, 0.8); /* gray-600/80 */
+  background: rgba(75, 85, 99, 0.8);
+  /* gray-600/80 */
 }
 
 /* For Firefox */

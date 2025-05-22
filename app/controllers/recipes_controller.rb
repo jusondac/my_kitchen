@@ -16,11 +16,23 @@ class RecipesController < ApplicationController
   def new
     @recipe = Recipe.new
     3.times { @recipe.recipe_ingredients.build }
+    3.times { @recipe.instructions.build { |i| i.position = @recipe.instructions.size + 1 } }
   end
 
   # GET /recipes/1/edit
   def edit
     @recipe.recipe_ingredients.build if @recipe.recipe_ingredients.empty?
+
+    # Convert existing instructions text field to individual instruction records if needed
+    if @recipe.instructions.empty? && @recipe.attributes["instructions"].present?
+      instructions_text = @recipe.attributes["instructions"].split("\n").reject(&:blank?)
+      instructions_text.each_with_index do |step, index|
+        @recipe.instructions.build(step: step, position: index + 1)
+      end
+    end
+
+    # Always ensure at least one empty instruction form
+    @recipe.instructions.build(position: @recipe.instructions.size + 1) if @recipe.instructions.empty?
   end
 
   # POST /recipes
@@ -57,7 +69,8 @@ class RecipesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def recipe_params
-      params.require(:recipe).permit(:name, :description, :instructions, :cooking_time, :user_id,
-        recipe_ingredients_attributes: [ :id, :ingredient_id, :quantity, :_destroy ])
+      params.require(:recipe).permit(:name, :description, :cooking_time, :user_id,
+        recipe_ingredients_attributes: [ :id, :ingredient_id, :quantity, :_destroy ],
+        instructions_attributes: [ :id, :step, :position, :_destroy ])
     end
 end
