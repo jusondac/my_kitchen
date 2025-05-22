@@ -1,4 +1,34 @@
 <%= form_with(model: recipe, class: "contents text-white", data: { controller: "recipe-form" }) do |form| %>
+  <style>
+    .sortable-chosen {
+      opacity: 0.8;
+      background-color: rgba(30, 41, 59, 0.8); /* slate-800 with opacity */
+    }
+    .sortable-drag {
+      opacity: 0.9;
+      transform: scale(1.02);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+      background-color: rgba(30, 41, 59, 0.95); /* slate-800 with opacity */
+      border: 1px solid rgba(59, 130, 246, 0.5); /* blue-500 with opacity */
+    }
+    .drag-handle {
+      cursor: grab;
+      transition: all 0.2s ease;
+    }
+    .drag-handle:hover {
+      color: #e2e8f0; /* text-gray-200 */
+    }
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+    .instruction-container {
+      transition: all 0.2s ease;
+    }
+    .instruction-container:hover .drag-handle {
+      color: #e2e8f0; /* text-gray-200 */
+    }
+  </style>
   <% if recipe.errors.any? %>
     <div class="bg-red-900/50 border border-red-800 rounded-lg p-4 mb-6">
       <div class="flex items-center mb-2">
@@ -51,24 +81,17 @@
                     <div class="bg-blue-900/60 text-blue-200 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 step-number">
                       <%= instruction_form.object.position || form.object.instructions.size %>
                     </div>
+                    <div class="drag-handle cursor-move flex-shrink-0 hover:bg-gray-800 p-1 rounded transition-colors">
+                      <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                      </svg>
+                    </div>
                     <div class="w-full">
                       <%= instruction_form.hidden_field :position, class: "position-field" %>
                       <%= instruction_form.text_area :step, rows: 2, placeholder: "Describe this step...", class: "block w-full rounded-md shadow-sm bg-gray-800 border border-gray-700 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
                     </div>
                   </div>
                   <div class="flex justify-end gap-2">
-                    <button type="button" class="move-instruction-up inline-flex items-center px-2 py-1 bg-gray-700/80 text-gray-300 text-xs rounded hover:bg-gray-600 transition-colors">
-                      <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                      </svg>
-                      Move Up
-                    </button>
-                    <button type="button" class="move-instruction-down inline-flex items-center px-2 py-1 bg-gray-700/80 text-gray-300 text-xs rounded hover:bg-gray-600 transition-colors">
-                      <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                      </svg>
-                      Move Down
-                    </button>
                     <% if instruction_form.object.persisted? %>
                       <div class="hidden">
                         <%= instruction_form.check_box :_destroy, class: "destroy-instruction-checkbox" %>

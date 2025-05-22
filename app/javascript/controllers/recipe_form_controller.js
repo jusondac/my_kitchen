@@ -1,7 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
+import Sortable from "sortablejs"
 
 export default class extends Controller {
   static targets = ["ingredients", "instructions"]
+
+  instructionSortable = null
 
   connect() {
     // Set up ingredient functionality
@@ -21,8 +24,10 @@ export default class extends Controller {
     this.setupDestroyToggleButtons()
     this.setupInstructionButtons()
 
-    // Ensure positions are correctly numbered on load
-    this.updateInstructionPositions()
+    // Initialize Sortable.js for the instructions
+    if (this.hasInstructionsTarget) {
+      this.initSortable()
+    }
 
     // Add classes for custom scrollbar
     if (this.hasIngredientsTarget) {
@@ -32,6 +37,20 @@ export default class extends Controller {
     if (this.hasInstructionsTarget) {
       this.instructionsTarget.classList.add('custom-scrollbar')
     }
+  }
+
+  // Initialize Sortable.js for instruction steps
+  initSortable() {
+    this.instructionSortable = Sortable.create(this.instructionsTarget, {
+      animation: 150,
+      handle: '.drag-handle',
+      ghostClass: 'bg-gray-700',
+      dragClass: 'sortable-drag',
+      chosenClass: 'sortable-chosen',
+      onEnd: (evt) => {
+        this.updateInstructionPositions()
+      }
+    })
   }
 
   setupRemoveButtons() {
@@ -140,31 +159,8 @@ export default class extends Controller {
       })
     })
 
-    // Move instruction up
-    document.querySelectorAll('.move-instruction-up').forEach(button => {
-      button.addEventListener('click', (event) => {
-        const currentInstruction = event.target.closest('.instruction-container')
-        const previousInstruction = currentInstruction.previousElementSibling
-
-        if (previousInstruction && previousInstruction.classList.contains('instruction-container')) {
-          this.instructionsTarget.insertBefore(currentInstruction, previousInstruction)
-          this.updateInstructionPositions()
-        }
-      })
-    })
-
-    // Move instruction down
-    document.querySelectorAll('.move-instruction-down').forEach(button => {
-      button.addEventListener('click', (event) => {
-        const currentInstruction = event.target.closest('.instruction-container')
-        const nextInstruction = currentInstruction.nextElementSibling
-
-        if (nextInstruction && nextInstruction.classList.contains('instruction-container')) {
-          this.instructionsTarget.insertBefore(nextInstruction, currentInstruction)
-          this.updateInstructionPositions()
-        }
-      })
-    })
+    // We no longer need the move up/down button event listeners
+    // as we're using Sortable.js for drag-and-drop functionality
   }
 
   addIngredient(event) {
@@ -245,24 +241,17 @@ export default class extends Controller {
             <div class="bg-blue-900/60 text-blue-200 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 step-number">
               ${nextPosition}
             </div>
+            <div class="drag-handle cursor-move flex-shrink-0 hover:bg-gray-800 p-1 rounded transition-colors">
+              <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </div>
             <div class="w-full">
               <input type="hidden" name="recipe[instructions_attributes][${timestamp}][position]" value="${nextPosition}" class="position-field">
               <textarea name="recipe[instructions_attributes][${timestamp}][step]" rows="2" placeholder="Describe this step..." class="block w-full rounded-md shadow-sm bg-gray-800 border border-gray-700 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
           </div>
           <div class="flex justify-end gap-2">
-            <button type="button" class="move-instruction-up inline-flex items-center px-2 py-1 bg-gray-700/80 text-gray-300 text-xs rounded hover:bg-gray-600 transition-colors">
-              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              Move Up
-            </button>
-            <button type="button" class="move-instruction-down inline-flex items-center px-2 py-1 bg-gray-700/80 text-gray-300 text-xs rounded hover:bg-gray-600 transition-colors">
-              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              Move Down
-            </button>
             <button type="button" class="remove-instruction inline-flex items-center px-2 py-1 bg-red-900/40 text-red-300 text-xs rounded hover:bg-red-800/60 transition-colors">
               <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -305,29 +294,8 @@ export default class extends Controller {
       })
     }
 
-    // Setup move up button
-    const moveUpButton = newInstructionItem.querySelector('.move-instruction-up')
-    if (moveUpButton) {
-      moveUpButton.addEventListener('click', () => {
-        const previousInstruction = newInstructionItem.previousElementSibling
-        if (previousInstruction && previousInstruction.classList.contains('instruction-container')) {
-          this.instructionsTarget.insertBefore(newInstructionItem, previousInstruction)
-          this.updateInstructionPositions()
-        }
-      })
-    }
-
-    // Setup move down button
-    const moveDownButton = newInstructionItem.querySelector('.move-instruction-down')
-    if (moveDownButton) {
-      moveDownButton.addEventListener('click', () => {
-        const nextInstruction = newInstructionItem.nextElementSibling
-        if (nextInstruction && nextInstruction.classList.contains('instruction-container')) {
-          this.instructionsTarget.insertBefore(nextInstruction, newInstructionItem)
-          this.updateInstructionPositions()
-        }
-      })
-    }
+    // Since we're now using Sortable.js, we don't need to set up move up/down buttons
+    // The drag handle will be detected automatically by the Sortable instance
   }
 
   getNextInstructionPosition() {
